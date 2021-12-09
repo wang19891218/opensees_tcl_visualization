@@ -1,21 +1,20 @@
 import * as THREE from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Lut } from 'three/examples/jsm/math/Lut'
-import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 
-
-import { argMin, getABS, formatInt, formatFloat } from './utils';
+import { formatInt, formatFloat } from './utils';
+// import { list } from 'postcss';
 
 
 var scaleDisplay = 0.01;
-var gridHelperSize = 10;
+var gridHelperSize = 1;
 var gridHelperSizeDivisions = 10;
 
 // Global variables
 const raycaster = new THREE.Raycaster();
 var vect2PointerCoord = new THREE.Vector2(0, 0);
 var mousePressed = false;
-var intersectedObjectColor;
+// var intersectedObjectColor;
 
 let camera, canvas, scene, renderer, controls;
 let divText;
@@ -24,6 +23,10 @@ let INTERSECTED;
 
 let hemiLight; 
 let listMeshNode;
+var nodeColor = "#ff0000";
+
+var listMeshArrowHelper = [];
+var arrowHelperLength = 0.1;
 
 export var meshWarehouse;
 
@@ -137,21 +140,15 @@ function updateText(){
 export function initializeNodeMesh(dictNodeInfo){
     var listKeys = Object.keys(dictNodeInfo);
     listMeshNode = []
+    var vect3MeanPosition = new THREE.Vector3();
     for (var iNode = 0; iNode < listKeys.length; iNode++) {
         let key = listKeys[iNode];
         let listNodeCoord = dictNodeInfo[key]["coordinate"]
-        // var intSensorIndexInPanel = dict_sensor_info['int_sensor_index_in_panel'];
-
-        // var listNormalDirection 
-        //     = dict_model_panel_info[intPanelNumber]['list_normal_direction']
-
-        // var floatValue = list_list_pressure_PSD[i_sensor][intFreqIndex];
-
-        var geometrySphere= new THREE.SphereGeometry(0.2 * scaleDisplay,10 ,10 );
+        var geometrySphere= new THREE.SphereGeometry(0.1 * scaleDisplay,10 ,10 );
         geometrySphere.center();
 
         var materialSphere = new THREE.MeshBasicMaterial({ 
-            color: colorMap(0),
+            color: nodeColor,
             opacity: 0.5,});
            
 
@@ -165,20 +162,39 @@ export function initializeNodeMesh(dictNodeInfo){
             + ", " + formatFloat(listNodeCoord[1]) 
             + ", " + formatFloat(listNodeCoord[2]);
 
-        meshSphere.targetColor = colorMap(0);
+        meshSphere.targetColor = nodeColor;
         meshSphere.displayInfo = "node number: " + formatInt(key)
 
         listMeshNode.push(meshSphere)
         scene.add(meshSphere);
+        // # Calculate center 
+        vect3MeanPosition.x += meshSphere.position.x / listKeys.length;
+        vect3MeanPosition.y += meshSphere.position.y / listKeys.length;
+        vect3MeanPosition.z += meshSphere.position.z / listKeys.length;
     }
+    controls.target.set(
+        vect3MeanPosition.x, 
+        vect3MeanPosition.y, 
+        vect3MeanPosition.z);
+    camera.position.set(
+        vect3MeanPosition.x * 3, 
+        vect3MeanPosition.y * 3, 
+        vect3MeanPosition.z * 3);
+
+    arrowHelperLength = Math.hypot(...vect3MeanPosition.toArray()) * 2;
+    console.log("arrowHelperLength: " + arrowHelperLength);
+    listMeshArrowHelper[0].scale.set(arrowHelperLength, 1, 1)
+    listMeshArrowHelper[1].scale.set(1, arrowHelperLength, 1)
+    listMeshArrowHelper[2].scale.set(1, 1, arrowHelperLength)
+    console.log(listMeshArrowHelper[2])
 }
 
 
 function initiateXYZHelper() {
     // X, Y, Z axis arrows
-    length = 30 
+    let length = 1 
 
-    origin = new THREE.Vector3(0, 0, 0);
+    let origin = new THREE.Vector3(0, 0, 0);
     var hexColorX = 0xff0000;
     var hexColorY = 0x00ff00;
     var hexColorZ = 0x0000ff;
@@ -195,6 +211,10 @@ function initiateXYZHelper() {
     var arrowHelperZ = new THREE.ArrowHelper(
         vect3DirZ, origin, length, hexColorZ, 0.003, 0.003);
     scene.add(arrowHelperZ);
+    console.log(arrowHelperZ)
+    listMeshArrowHelper.push(arrowHelperX)
+    listMeshArrowHelper.push(arrowHelperX)
+    listMeshArrowHelper.push(arrowHelperX)
 }
 
 function animate() {
@@ -203,10 +223,24 @@ function animate() {
     render()
 };
 
-function functionResetColor(){
+
+function functionResetColor(valueColor){
     listMeshNode.forEach(function(MeshNode){
-        MeshNode.material.color.set(MeshNode.targetColor);
+        MeshNode.material.color.set(valueColor);
     })
+}
+
+export function functionSetNodeScale(valueScale){
+    if (listMeshNode){
+        listMeshNode.forEach(function(MeshNode){
+            MeshNode.scale.set(valueScale, valueScale, valueScale);
+        })
+    }
+}
+
+
+export function functionSetNodeColor(valueColor){
+    nodeColor = valueColor;
 }
 
 function render() {
@@ -221,7 +255,8 @@ function render() {
                 INTERSECTED.material.color.setHex( 0xffffff );
             }
         } else {
-            functionResetColor();
+            // let valueColor = document.getdomElementById("controlPanel").value;
+            functionResetColor(nodeColor);
             INTERSECTED = null;
         }
     }

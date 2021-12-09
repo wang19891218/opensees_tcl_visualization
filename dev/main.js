@@ -1,10 +1,18 @@
 import './style.css'
 
 import { parseTcl } from './utils';
-import { initializeNodeMesh } from './visualizationBuilding';
-// import './visualizationBuilding';
+import { initializeNodeMesh, functionSetNodeScale, functionSetNodeColor } from './visualizationBuilding';
+import { inputNodeScale, inputNodeColor } from './controlPanel';
 
 console.log("functions imported")
+
+inputNodeScale.on("change", (event) => {
+    functionSetNodeScale(event.value);
+});
+inputNodeColor.on("change", (event) => {
+    console.log(event);
+    functionSetNodeColor(event.value);
+});
 
 const fileSelector = document.getElementById('file-selector');
 fileSelector.addEventListener('change', (event) => {
@@ -23,12 +31,12 @@ fileSelector.addEventListener('change', (event) => {
             var [dictNodeInfo, dictElementInfo] = parseTcl(lines)
             console.log(dictNodeInfo);
             console.log(dictElementInfo);
-            initializeNodeMesh(dictNodeInfo);
             var strInnerHTML = "<p>";
             for (var i_line =9; i_line < lines.length; i_line++) {
                 strInnerHTML += lines[i_line] + "<br>";
             }
             document.getElementById('tcl_txt').innerHTML= strInnerHTML
+            initializeNodeMesh(dictNodeInfo);
         }
     })(reader);
     reader.readAsText(fileList[0]);

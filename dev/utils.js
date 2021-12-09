@@ -63,8 +63,6 @@ export function parseTcl(list_file_line) {
         var listNodeCoord = list_node[i_node].slice(1).map(function(x) {
             return parseFloat(x)
         })
-        console.log("Debug in util", list_node[i_node], listNodeCoord)
-        // # array_node_coord[x_coord, y_coord, z_coord]
         dictNodeInfo[int_node_number] = {"coordinate": listNodeCoord}
     } 
     var dictElementInfo = {}
