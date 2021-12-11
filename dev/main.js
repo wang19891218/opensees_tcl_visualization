@@ -28,6 +28,7 @@ fileSelector.addEventListener('change', (event) => {
             }
             document.getElementById('tcl_txt').innerHTML= strInnerHTML
             initializeNodeMesh(dictNodeInfo);
+            fileSelector.value = "";
         }
     })(reader);
     reader.readAsText(fileList[0]);
