@@ -22,7 +22,7 @@ fileSelector.addEventListener('change', (event) => {
             var contents = reader.result;
             var lines = contents.split('\n');
             var [dictNodeInfo, dictElementInfo] = parseTcl(lines)
-            var strInnerHTML = "<p>";
+            var strInnerHTML = "<p id='tcl_txt_p'>";
             for (var i_line =9; i_line < lines.length; i_line++) {
                 strInnerHTML += lines[i_line] + "<br>";
             }
