@@ -142,7 +142,9 @@ export function initializeNodeMesh(dictNodeInfo){
     for (var iNode = 0; iNode < listKeys.length; iNode++) {
         let key = listKeys[iNode];
         let listNodeCoord = dictNodeInfo[key]["coordinate"]
-        var geometrySphere= new THREE.SphereGeometry(0.1 * scaleDisplay,10 ,10 );
+        let nodeMass = dictNodeInfo[key]["mass"]
+        var geometrySphere 
+            = new THREE.SphereGeometry(0.1 * scaleDisplay,10 ,10);
         geometrySphere.center();
 
         var materialSphere = new THREE.MeshBasicMaterial({ 

@@ -23,8 +23,10 @@ export function formatFloat(valueFloat, intDecimal = 2, intLength = 5) {
 export function parseTcl(list_file_line) {
     // get node and elements
     var dict_parameter = {}
-    var list_node = []
     var list_element = []
+    var dictNodeInfo = {}
+
+
     for (var i_line = 0; i_line < list_file_line.length; i_line ++) {
         let line = list_file_line[i_line]
         if (line.startsWith('model')){
@@ -34,12 +36,22 @@ export function parseTcl(list_file_line) {
             dict_parameter["int_ndf"] = parseInt(temp_str.slice(4))
         }
         if (line.startsWith("node")){
-            // let temp_int_index = line.match(/-mass/) 
-            // if temp_int_index> 0:
-            //     line = line[:temp_int_index]
-            // array_info = numpy.array(line.split()[1:])
             var array_info = line.split(/\s+/).slice(1)
-            list_node.push(array_info)
+            var int_node_number = parseInt(array_info[0])
+            var listNodeCoord = array_info.slice(1).map(function(x) {
+                return parseFloat(x)
+            })
+            dictNodeInfo[int_node_number] = {"coordinate": listNodeCoord}
+        } 
+        if (line.startsWith("mass")){
+            var array_info = line.split(/\s+/).slice(1)
+            var int_node_number = parseInt(array_info[0])
+            var listNodeMass = array_info.slice(1).map(function(x) {
+                return parseFloat(x)
+            })
+            dictNodeInfo[int_node_number]["directional_mass"] = listNodeMass
+            dictNodeInfo[int_node_number]["mass"] 
+                = (listNodeMass[0] + listNodeMass[1] + listNodeMass[2]) / 3
         }
     }
         // if line.startsWith('element'):
@@ -54,17 +66,8 @@ export function parseTcl(list_file_line) {
         //     #     line = line[:temp_int_index]
         //     array_info = numpy.array(temp_str.split()[1:])
         //     list_element.append(array_info)
-
     // array2d_coord = numpy.array(list_node)
     // array2d_coord = array2d_coord[:,:].astype('float')
-    var dictNodeInfo = {}
-    for (let i_node=0; i_node < list_node.length; i_node++){
-        var int_node_number = parseInt(list_node[i_node][0])
-        var listNodeCoord = list_node[i_node].slice(1).map(function(x) {
-            return parseFloat(x)
-        })
-        dictNodeInfo[int_node_number] = {"coordinate": listNodeCoord}
-    } 
     var dictElementInfo = {}
     // if len(list_element) == 0:
     //     print('No element found')
