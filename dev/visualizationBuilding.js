@@ -3,8 +3,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Lut } from 'three/examples/jsm/math/Lut'
 
 import { formatInt, formatFloat } from './utils';
-// import { list } from 'postcss';
-
 
 var scaleDisplay = 0.01;
 var gridHelperSize = 1;
@@ -40,8 +38,8 @@ function colorMap(floatValue) {
 
 function onWindowResize() {
     let canvas = document.getElementById("buildingVisualization");
-    let width = canvas.parentElement.innerWidth;
-    let height = canvas.parentElement.innerHeight;
+    let width = canvas.parentElement.clientWidth;
+    let height = canvas.parentElement.clientHeight;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
