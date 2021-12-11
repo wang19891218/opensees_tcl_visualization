@@ -23,7 +23,7 @@ export function formatFloat(valueFloat, intDecimal = 2, intLength = 5) {
 export function parseTcl(list_file_line) {
     // get node and elements
     var dict_parameter = {}
-    var list_element = []
+    var dictElementInfo = {}
     var dictNodeInfo = {}
 
 
@@ -53,22 +53,34 @@ export function parseTcl(list_file_line) {
             dictNodeInfo[int_node_number]["mass"] 
                 = (listNodeMass[0] + listNodeMass[1] + listNodeMass[2]) / 3
         }
-    }
-        // if line.startsWith('element'):
-        //     str_pattern = r'[a-z] [0-9]{1,} [0-9]{1,} [0-9]{1,}'
-        //     temp_str = re.findall(str_pattern, line)[0]
-        //     # print("debug", temp_str)
-        //     # temp_int_index = line.find('-mass') 
-        //     # if temp_int_index> 0:
-        //     #     line = line[:temp_int_index]
-        //     # temp_int_index = line.find('-rho') 
-        //     # if temp_int_index> 0:
-        //     #     line = line[:temp_int_index]
-        //     array_info = numpy.array(temp_str.split()[1:])
-        //     list_element.append(array_info)
+        if (line.startsWith('element')) {
+            var array_info = line.split(/\s+/).slice(1)
+            // console.log("DEBUG in parseTcl: array_info = ", array_info)
+            var elementType = array_info[0]
+            var int_element_number = parseInt(array_info[1])
+            var int_node_number_1 = parseInt(array_info[2])
+            var int_node_number_2 = parseInt(array_info[3])
+            
+            dictElementInfo[int_element_number] = {}
+            dictElementInfo[int_element_number]["node_number_1"] 
+                = int_node_number_1;
+            dictElementInfo[int_element_number]["node_number_2"] 
+                = int_node_number_2;
+
+            // str_pattern = r'[a-z] [0-9]{1,} [0-9]{1,} [0-9]{1,}'
+            // temp_str = re.findall(str_pattern, line)[0]
+            // # print("debug", temp_str)
+            // # temp_int_index = line.find('-mass') 
+            // # if temp_int_index> 0:
+            // #     line = line[:temp_int_index]
+            // # temp_int_index = line.find('-rho') 
+            // # if temp_int_index> 0:
+            // #     line = line[:temp_int_index]
+            // array_info = numpy.array(temp_str.split()[1:])
+            // list_element.append(array_info)
+        }
     // array2d_coord = numpy.array(list_node)
     // array2d_coord = array2d_coord[:,:].astype('float')
-    var dictElementInfo = {}
     // if len(list_element) == 0:
     //     print('No element found')
     // else:
@@ -79,7 +91,7 @@ export function parseTcl(list_file_line) {
     //         int_node_1 = int(array2d_element_node[i_element, 1])
     //         int_node_2 = int(array2d_element_node[i_element, 2])
     //         dict_element_info[int_element_number] = [int_node_1, int_node_2]
-
+    }
     // # array2d_coord_node1 = numpy.zeros([array2d_element_node.shape[0], 3])
     // # array2d_coord_node2 = numpy.zeros([array2d_element_node.shape[0], 3])
     // # for i_element in range(array2d_element_node.shape[0]):

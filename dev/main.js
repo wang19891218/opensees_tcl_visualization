@@ -1,8 +1,13 @@
 import './style.css'
 
 import { parseTcl } from './utils';
-import { initializeNodeMesh, functionSetNodeScale, functionSetNodeColor } from './visualizationBuilding';
-import { inputNodeScale, inputNodeColor } from './controlPanel';
+import { initializeNodeMesh, initializeBeamMesh, 
+        functionSetNodeScale, functionSetNodeColor, 
+        functionSetBeamScale, functionSetBeamColor, functionSetRandomBeamColor } 
+    from './visualizationBuilding';
+import { inputNodeScale, inputNodeColor,
+        inputBeamScale, inputBeamColor, inputButtonRandomColor } 
+    from './controlPanel';
 
 inputNodeScale.on("change", (event) => {
     functionSetNodeScale(event.value);
@@ -10,6 +15,17 @@ inputNodeScale.on("change", (event) => {
 inputNodeColor.on("change", (event) => {
     functionSetNodeColor(event.value);
 });
+inputBeamScale.on("change", (event) => {
+    functionSetBeamScale(event.value);
+});
+inputBeamColor.on("change", (event) => {
+    functionSetBeamColor(event.value);
+});
+inputButtonRandomColor.on("click", () => {
+    functionSetRandomBeamColor();
+});
+
+functionSetRandomBeamColor
 
 const fileSelector = document.getElementById('file-selector');
 fileSelector.addEventListener('change', (event) => {
@@ -28,6 +44,7 @@ fileSelector.addEventListener('change', (event) => {
             }
             document.getElementById('tcl_txt').innerHTML= strInnerHTML
             initializeNodeMesh(dictNodeInfo);
+            initializeBeamMesh(dictElementInfo, dictNodeInfo);
             fileSelector.value = "";
         }
     })(reader);

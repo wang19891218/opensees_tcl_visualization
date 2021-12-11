@@ -20,8 +20,10 @@ let gridHelper;
 let INTERSECTED;
 
 let hemiLight; 
-let listMeshNode;
-var nodeColor = "#ff0000";
+var listMeshNode = [];
+var nodeColor = "#ffffff";
+var listMeshBeam = [];
+var beamColor = "#ffffff";
 
 var listMeshArrowHelper = [];
 var arrowHelperLength = 0.1;
@@ -190,6 +192,72 @@ export function initializeNodeMesh(dictNodeInfo){
 }
 
 
+export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
+    var listKeys = Object.keys(dictElementInfo);
+    for (var iBeam = 0; iBeam < listKeys.length; iBeam++) {
+        let key = listKeys[iBeam];
+        let node_number_1 = dictElementInfo[key]["node_number_1"]
+        let node_number_2 = dictElementInfo[key]["node_number_2"]
+
+        let vect3NodeCoord1 = new THREE.Vector3(
+            dictNodeInfo[node_number_1]["coordinate"][0],
+            dictNodeInfo[node_number_1]["coordinate"][2],
+            dictNodeInfo[node_number_1]["coordinate"][1])
+        let vect3NodeCoord2 = new THREE.Vector3(
+            dictNodeInfo[node_number_2]["coordinate"][0],
+            dictNodeInfo[node_number_2]["coordinate"][2],
+            dictNodeInfo[node_number_2]["coordinate"][1])
+        let vect3NodeCoordMean = new THREE.Vector3(
+            (vect3NodeCoord1.x + vect3NodeCoord2.x)/ 2, 
+            (vect3NodeCoord1.y + vect3NodeCoord2.y)/ 2, 
+            (vect3NodeCoord1.z + vect3NodeCoord2.z)/ 2, 
+        )
+
+        var geometryCylinder = new THREE.CylinderGeometry(
+            0.1 / 2 * scaleDisplay, 0.1 / 2 * scaleDisplay, 1 ,10);
+        geometryCylinder.center();
+        let vect3Direction = vect3NodeCoord1.sub(vect3NodeCoord2)
+        let scaleLength = vect3Direction.length()
+        // console.log("DEBUG in initializeBeamMesh: before" + geometryCylinder.scale);
+        // console.log(vect3NodeCoord1.distanceTo(vect3NodeCoord2))
+        geometryCylinder.scale(1, scaleLength * scaleDisplay, 1);
+        // console.log("DEBUG in initializeBeamMesh: after" + geometryCylinder.scale);
+
+        var materialCylinder = new THREE.MeshBasicMaterial({ 
+            color: beamColor,
+            opacity: 0.5,});
+
+        var meshCylinder = new THREE.Mesh(geometryCylinder, materialCylinder);
+        meshCylinder.position.x = vect3NodeCoordMean.x * scaleDisplay;
+        meshCylinder.position.y = vect3NodeCoordMean.y * scaleDisplay;
+        meshCylinder.position.z = vect3NodeCoordMean.z * scaleDisplay;
+
+        meshCylinder.name = "node number: " + formatInt(key)
+            + " Coord: " + formatFloat(vect3NodeCoord1.x) 
+            + ", " + formatFloat(vect3NodeCoord1.y) 
+            + ", " + formatFloat(vect3NodeCoord1.z) 
+            + " Coord: " + formatFloat(vect3NodeCoord2.x) 
+            + ", " + formatFloat(vect3NodeCoord2.y) 
+            + ", " + formatFloat(vect3NodeCoord2.z) 
+
+        meshCylinder.targetColor = beamColor;
+        meshCylinder.displayInfo = "element number: " + formatInt(key)
+
+        let quaternionRotation = new THREE.Quaternion();
+        quaternionRotation.setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            new THREE.Vector3(...vect3Direction.divideScalar(scaleLength).toArray())
+        )
+        meshCylinder.quaternion.copy(quaternionRotation);
+        listMeshBeam.push(meshCylinder)
+        scene.add(meshCylinder);
+        console.log( new THREE.Vector3(vect3Direction.divideScalar(scaleLength)))
+        console.log(quaternionRotation)
+        console.log(meshCylinder)
+    }
+}
+
+
 function initiateXYZHelper() {
     // X, Y, Z axis arrows
     let length = 1 
@@ -224,9 +292,14 @@ function animate() {
 };
 
 
-function functionResetColor(valueColor){
+function functionResetNodeColor(valueColor){
     listMeshNode.forEach(function(MeshNode){
         MeshNode.material.color.set(valueColor);
+    })
+}
+function functionResetBeamColor(){
+    listMeshBeam.forEach(function(MeshBeam){
+        MeshBeam.material.color.set(MeshBeam.targetColor);
     })
 }
 
@@ -242,21 +315,57 @@ export function functionSetNodeScale(valueScale){
 export function functionSetNodeColor(valueColor){
     nodeColor = valueColor;
 }
+export function functionSetBeamScale(valueScale){
+    if (listMeshBeam){
+        listMeshBeam.forEach(function(Mesh){
+            Mesh.scale.set(valueScale, 1, valueScale);
+        })
+    }
+}
+
+export function functionSetBeamColor(valueColor){
+    listMeshBeam.forEach(function(MeshBeam){
+        MeshBeam.targetColor = valueColor;
+    })
+}
+
+export function functionSetRandomBeamColor(){
+    for (let iBeam=0; iBeam < listMeshBeam.length; iBeam++){
+        let color = new THREE.Color( 0xffffff );
+        color.setHex( Math.random() * 0xffffff );
+        listMeshBeam[iBeam].material.color.set(color)
+        listMeshBeam[iBeam].targetColor = color;
+    }
+}
 
 function render() {
     // Change color of hover object and show its name (sensor index)
     raycaster.setFromCamera(vect2PointerCoord, camera);
-    if (listMeshNode ){
+    if (listMeshNode){
         const intersects = raycaster.intersectObjects(listMeshNode, false);
         if ( intersects.length > 0 ) {
             if ( INTERSECTED != intersects[ 0 ].object ) {
                 INTERSECTED = intersects[ 0 ].object;
-                intersectedObjectColor = INTERSECTED.material.color.getHex();
+                // intersectedObjectColor = INTERSECTED.material.color.getHex();
                 INTERSECTED.material.color.setHex( 0xffffff );
             }
         } else {
             // let valueColor = document.getdomElementById("controlPanel").value;
-            functionResetColor(nodeColor);
+            functionResetNodeColor(nodeColor);
+            INTERSECTED = null;
+        }
+    }
+    if (listMeshBeam){
+        const intersects = raycaster.intersectObjects(listMeshBeam, false);
+        if ( intersects.length > 0 ) {
+            if ( INTERSECTED != intersects[ 0 ].object ) {
+                INTERSECTED = intersects[ 0 ].object;
+                // intersectedObjectColor = INTERSECTED.material.color.getHex();
+                INTERSECTED.material.color.setHex( 0xffffff );
+            }
+        } else {
+            // let valueColor = document.getdomElementById("controlPanel").value;
+            functionResetBeamColor();
             INTERSECTED = null;
         }
     }
