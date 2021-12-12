@@ -139,19 +139,23 @@ function updateText(){
 
 export function initializeNodeMesh(dictNodeInfo){
     var listKeys = Object.keys(dictNodeInfo);
-    listMeshNode = []
+    // clear existing mesh 
+    while (listMeshNode.length > 0){
+        scene.remove(listMeshNode.pop());
+    }
     var vect3MeanPosition = new THREE.Vector3();
     for (var iNode = 0; iNode < listKeys.length; iNode++) {
         let key = listKeys[iNode];
         let listNodeCoord = dictNodeInfo[key]["coordinate"]
         let nodeMass = dictNodeInfo[key]["mass"]
         var geometrySphere 
-            = new THREE.SphereGeometry(0.1 * scaleDisplay,10 ,10);
+            = new THREE.SphereGeometry(0.1 * scaleDisplay * 0.4,10 ,10);
         geometrySphere.center();
 
         var materialSphere = new THREE.MeshBasicMaterial({ 
             color: nodeColor,
-            opacity: 0.5,});
+            transparent: true,
+            opacity: 0.7,});
            
 
         var meshSphere = new THREE.Mesh(geometrySphere, materialSphere);
@@ -194,6 +198,10 @@ export function initializeNodeMesh(dictNodeInfo){
 
 export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
     var listKeys = Object.keys(dictElementInfo);
+    // clear existing mesh 
+    while (listMeshBeam.length > 0){
+        scene.remove(listMeshBeam.pop());
+    }
     for (var iBeam = 0; iBeam < listKeys.length; iBeam++) {
         let key = listKeys[iBeam];
         let node_number_1 = dictElementInfo[key]["node_number_1"]
@@ -214,7 +222,7 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         )
 
         var geometryCylinder = new THREE.CylinderGeometry(
-            0.1 / 2 * scaleDisplay, 0.1 / 2 * scaleDisplay, 1 ,10);
+            0.1 / 2 * 0.6 * scaleDisplay, 0.1 / 2 * 0.6 * scaleDisplay, 1 ,10);
         geometryCylinder.center();
         let vect3Direction = vect3NodeCoord1.sub(vect3NodeCoord2)
         let scaleLength = vect3Direction.length()
@@ -225,7 +233,8 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
 
         var materialCylinder = new THREE.MeshBasicMaterial({ 
             color: beamColor,
-            opacity: 0.5,});
+            transparent: true,
+            opacity: 0.7,});
 
         var meshCylinder = new THREE.Mesh(geometryCylinder, materialCylinder);
         meshCylinder.position.x = vect3NodeCoordMean.x * scaleDisplay;
@@ -279,7 +288,6 @@ function initiateXYZHelper() {
     var arrowHelperZ = new THREE.ArrowHelper(
         vect3DirZ, origin, length, hexColorZ, 0.003, 0.003);
     scene.add(arrowHelperZ);
-    console.log(arrowHelperZ)
     listMeshArrowHelper.push(arrowHelperX)
     listMeshArrowHelper.push(arrowHelperX)
     listMeshArrowHelper.push(arrowHelperX)
@@ -311,6 +319,13 @@ export function functionSetNodeScale(valueScale){
     }
 }
 
+export function functionSetNodeOpacity(valueOpacity){
+    if (listMeshNode){
+        listMeshNode.forEach(function(MeshNode){
+            MeshNode.material.opacity = valueOpacity;
+        })
+    }
+}
 
 export function functionSetNodeColor(valueColor){
     nodeColor = valueColor;
@@ -319,6 +334,14 @@ export function functionSetBeamScale(valueScale){
     if (listMeshBeam){
         listMeshBeam.forEach(function(Mesh){
             Mesh.scale.set(valueScale, 1, valueScale);
+        })
+    }
+}
+
+export function functionSetBeamOpacity(valueOpacity){
+    if (listMeshBeam){
+        listMeshBeam.forEach(function(MeshBeam){
+            MeshBeam.material.opacity = valueOpacity;
         })
     }
 }

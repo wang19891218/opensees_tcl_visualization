@@ -1,31 +1,30 @@
 import './style.css'
 
 import { parseTcl } from './utils';
-import { initializeNodeMesh, initializeBeamMesh, 
-        functionSetNodeScale, functionSetNodeColor, 
-        functionSetBeamScale, functionSetBeamColor, functionSetRandomBeamColor } 
-    from './visualizationBuilding';
-import { inputNodeScale, inputNodeColor,
-        inputBeamScale, inputBeamColor, inputButtonRandomColor } 
-    from './controlPanel';
+import * as visualizationBuilding from './visualizationBuilding';
+import * as controlPanel from './controlPanel';
 
-inputNodeScale.on("change", (event) => {
-    functionSetNodeScale(event.value);
+controlPanel.inputNodeScale.on("change", (event) => {
+    visualizationBuilding.functionSetNodeScale(event.value);
 });
-inputNodeColor.on("change", (event) => {
-    functionSetNodeColor(event.value);
+controlPanel.inputNodeOpacity.on("change", (event) => {
+    visualizationBuilding.functionSetNodeOpacity(event.value);
 });
-inputBeamScale.on("change", (event) => {
-    functionSetBeamScale(event.value);
+controlPanel.inputNodeColor.on("change", (event) => {
+    visualizationBuilding.functionSetNodeColor(event.value);
 });
-inputBeamColor.on("change", (event) => {
-    functionSetBeamColor(event.value);
+controlPanel.inputBeamScale.on("change", (event) => {
+    visualizationBuilding.functionSetBeamScale(event.value);
 });
-inputButtonRandomColor.on("click", () => {
-    functionSetRandomBeamColor();
+controlPanel.inputBeamOpacity.on("change", (event) => {
+    visualizationBuilding.functionSetBeamOpacity(event.value);
 });
-
-functionSetRandomBeamColor
+controlPanel.inputBeamColor.on("change", (event) => {
+    visualizationBuilding.functionSetBeamColor(event.value);
+});
+controlPanel.inputButtonRandomColor.on("click", () => {
+    visualizationBuilding.functionSetRandomBeamColor();
+});
 
 const fileSelector = document.getElementById('file-selector');
 fileSelector.addEventListener('change', (event) => {
@@ -43,10 +42,24 @@ fileSelector.addEventListener('change', (event) => {
                 strInnerHTML += lines[i_line] + "<br>";
             }
             document.getElementById('tcl_txt').innerHTML= strInnerHTML
-            initializeNodeMesh(dictNodeInfo);
-            initializeBeamMesh(dictElementInfo, dictNodeInfo);
+            visualizationBuilding.initializeNodeMesh(dictNodeInfo);
+            visualizationBuilding.initializeBeamMesh(dictElementInfo, dictNodeInfo);
             fileSelector.value = "";
+            fileSelector.title= "";
         }
     })(reader);
     reader.readAsText(fileList[0]);
 });
+
+
+
+window.onload = window.resize = function() {
+    document.getElementById("content").style.height = window.innerHeight + "px";
+    document.getElementById("tcl_txt").style.height 
+        = document.getElementById("buildingVisualization").clientHeight
+        - document.getElementById("controlPanel").clientHeight
+        - document.getElementById("tcl_input").clientHeight  + "px";
+    console.log(window.innerHeight)
+    console.log(document.getElementById("controlPanel").clientHeight)
+    console.log(document.getElementById("tcl_input").clientHeight)
+}

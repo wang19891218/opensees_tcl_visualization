@@ -6,6 +6,9 @@ body {
     max-width: 1920px;
 }
 
+
+
+
 #buildingVisualization{
     width:100%
 }
@@ -15,12 +18,11 @@ body {
     font-family: "Roboto", sans-serif;
     font-size: 8pt;
     font-weight: regular;
+    height: 100%;
     color: #000;
     text-align: left;
+    max-height: inherit;
     margin-top: 1rem;
-    overflow: hidden;
-}
-
-#tct_txt_p{
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
