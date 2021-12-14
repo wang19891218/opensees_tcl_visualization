@@ -1,3 +1,11 @@
+const listBeamElementTypes = [
+    "beamWithHinges", 
+    "dispBeamColumn", 
+    "elasticBeamColumn", 
+    "nonlinearBeamColumn"]
+
+const listShellElementTypes = [
+    "ShellMITC4",]
 
 export function argMin(array) {
   return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] < r[0] ? a : r))[1];
@@ -20,11 +28,48 @@ export function formatFloat(valueFloat, intDecimal = 2, intLength = 5) {
     return expandedString.slice(-intLength)
 }
 
+
+function parseTclElementLine(line) {
+    let arrayInfo = line.split(/\s+/).slice(1)
+
+    var elementType = arrayInfo[0]
+    let dictInfo = {}
+    if (listBeamElementTypes.includes(elementType)) {
+        var int_element_number = parseInt(arrayInfo[1])
+        var int_node_number_1 = parseInt(arrayInfo[2])
+        var int_node_number_2 = parseInt(arrayInfo[3])
+        
+        dictInfo["type"] = elementType
+        dictInfo["intElementNumber"] = int_element_number 
+        dictInfo["listNodeNumber"] =  [int_node_number_1, int_node_number_2]
+    } 
+    else if (listShellElementTypes.includes(elementType)) {
+        var int_element_number = parseInt(arrayInfo[1])
+        var int_node_number_1 = parseInt(arrayInfo[2])
+        var int_node_number_2 = parseInt(arrayInfo[3])
+        var int_node_number_3 = parseInt(arrayInfo[4])
+        var int_node_number_4 = parseInt(arrayInfo[5])
+        
+        dictInfo["type"] = elementType
+        dictInfo["intElementNumber"] = int_element_number 
+        dictInfo["listNodeNumber"] = [int_node_number_1, int_node_number_2, 
+            int_node_number_3, int_node_number_4]
+    } 
+    else {
+        console.log("ERROR, element type not supported")
+        console.log(line)
+    }
+
+
+    return dictInfo
+}
+
 export function parseTcl(list_file_line) {
     // get node and elements
     var dict_parameter = {}
-    var dictElementInfo = {}
     var dictNodeInfo = {}
+    var dictBeamElementInfo = {}
+    var dictShellElementInfo = {}
 
 
     for (var i_line = 0; i_line < list_file_line.length; i_line ++) {
@@ -36,17 +81,17 @@ export function parseTcl(list_file_line) {
             dict_parameter["int_ndf"] = parseInt(temp_str.slice(4))
         }
         if (line.startsWith("node")){
-            var array_info = line.split(/\s+/).slice(1)
-            var int_node_number = parseInt(array_info[0])
-            var listNodeCoord = array_info.slice(1).map(function(x) {
+            var arrayInfo = line.split(/\s+/).slice(1)
+            var int_node_number = parseInt(arrayInfo[0])
+            var listNodeCoord = arrayInfo.slice(1).map(function(x) {
                 return parseFloat(x)
             })
             dictNodeInfo[int_node_number] = {"coordinate": listNodeCoord}
         } 
         if (line.startsWith("mass")){
-            var array_info = line.split(/\s+/).slice(1)
-            var int_node_number = parseInt(array_info[0])
-            var listNodeMass = array_info.slice(1).map(function(x) {
+            var arrayInfo = line.split(/\s+/).slice(1)
+            var int_node_number = parseInt(arrayInfo[0])
+            var listNodeMass = arrayInfo.slice(1).map(function(x) {
                 return parseFloat(x)
             })
             dictNodeInfo[int_node_number]["directional_mass"] = listNodeMass
@@ -54,19 +99,14 @@ export function parseTcl(list_file_line) {
                 = (listNodeMass[0] + listNodeMass[1] + listNodeMass[2]) / 3
         }
         if (line.startsWith('element')) {
-            var array_info = line.split(/\s+/).slice(1)
-            // console.log("DEBUG in parseTcl: array_info = ", array_info)
-            var elementType = array_info[0]
-            var int_element_number = parseInt(array_info[1])
-            var int_node_number_1 = parseInt(array_info[2])
-            var int_node_number_2 = parseInt(array_info[3])
-            
-            dictElementInfo[int_element_number] = {}
-            dictElementInfo[int_element_number]["node_number_1"] 
-                = int_node_number_1;
-            dictElementInfo[int_element_number]["node_number_2"] 
-                = int_node_number_2;
-
+            let dictInfo = parseTclElementLine(line) 
+            let int_element_number = dictInfo["intElementNumber"]
+            if (dictInfo["listNodeNumber"].length == 2) {
+                dictBeamElementInfo[int_element_number] = dictInfo
+            }
+            else if (dictInfo["listNodeNumber"].length == 4) {
+                dictShellElementInfo[int_element_number] = dictInfo
+            }
             // str_pattern = r'[a-z] [0-9]{1,} [0-9]{1,} [0-9]{1,}'
             // temp_str = re.findall(str_pattern, line)[0]
             // # print("debug", temp_str)
@@ -76,8 +116,8 @@ export function parseTcl(list_file_line) {
             // # temp_int_index = line.find('-rho') 
             // # if temp_int_index> 0:
             // #     line = line[:temp_int_index]
-            // array_info = numpy.array(temp_str.split()[1:])
-            // list_element.append(array_info)
+            // arrayInfo = numpy.array(temp_str.split()[1:])
+            // list_element.append(arrayInfo)
         }
     // array2d_coord = numpy.array(list_node)
     // array2d_coord = array2d_coord[:,:].astype('float')
@@ -112,5 +152,5 @@ export function parseTcl(list_file_line) {
     // #     array2d_coord_node1[i_element,:] =  array_cord_node_1
     // #     array2d_coord_node2[i_element,:] =  array_cord_node_2
 
-    return [dictNodeInfo, dictElementInfo]
+    return [dictNodeInfo, dictBeamElementInfo, dictShellElementInfo]
 }

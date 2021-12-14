@@ -36,14 +36,15 @@ fileSelector.addEventListener('change', (event) => {
         {
             var contents = reader.result;
             var lines = contents.split('\n');
-            var [dictNodeInfo, dictElementInfo] = parseTcl(lines)
+            var [dictNodeInfo, dictBeamElementInfo, dictShellElementInfo] = parseTcl(lines)
             var strInnerHTML = "<p id='tcl_txt_p'>";
             for (var i_line =9; i_line < lines.length; i_line++) {
                 strInnerHTML += lines[i_line] + "<br>";
             }
             document.getElementById('tcl_txt').innerHTML= strInnerHTML
             visualizationBuilding.initializeNodeMesh(dictNodeInfo);
-            visualizationBuilding.initializeBeamMesh(dictElementInfo, dictNodeInfo);
+            visualizationBuilding.initializeBeamMesh(dictBeamElementInfo, dictNodeInfo);
+            visualizationBuilding.initializeShellMesh(dictShellElementInfo, dictNodeInfo);
             fileSelector.value = "";
             fileSelector.title= "";
         }

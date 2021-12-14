@@ -1,5 +1,6 @@
 import * as THREE from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { ConvexGeometry} from 'three/examples/jsm/geometries/ConvexGeometry';
 import { Lut } from 'three/examples/jsm/math/Lut'
 
 import { formatInt, formatFloat } from './utils';
@@ -24,6 +25,8 @@ var listMeshNode = [];
 var nodeColor = "#ffffff";
 var listMeshBeam = [];
 var beamColor = "#ffffff";
+var listMeshShell= [];
+var shellColor = "#ffffff";
 
 var listMeshArrowHelper = [];
 var arrowHelperLength = 0.1;
@@ -112,7 +115,7 @@ function initializeText() {
     divText.style.position = "absolute";
     divText.style.top = "0px";
     divText.style.left = "0px";
-    divText.style.width = "60px";
+    divText.style.width = "80px";
     divText.style.height = "20px";
     divText.style.borderRadius = "1px";
     divText.style.borderWidth = "1px";
@@ -170,6 +173,7 @@ export function initializeNodeMesh(dictNodeInfo){
 
         meshSphere.targetColor = nodeColor;
         meshSphere.displayInfo = "node number: " + formatInt(key)
+        meshSphere.displayInfo = meshSphere.name
 
         listMeshNode.push(meshSphere)
         scene.add(meshSphere);
@@ -204,8 +208,8 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
     }
     for (var iBeam = 0; iBeam < listKeys.length; iBeam++) {
         let key = listKeys[iBeam];
-        let node_number_1 = dictElementInfo[key]["node_number_1"]
-        let node_number_2 = dictElementInfo[key]["node_number_2"]
+        let node_number_1 = dictElementInfo[key]["listNodeNumber"][0]
+        let node_number_2 = dictElementInfo[key]["listNodeNumber"][1]
 
         let vect3NodeCoord1 = new THREE.Vector3(
             dictNodeInfo[node_number_1]["coordinate"][0],
@@ -226,10 +230,7 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         geometryCylinder.center();
         let vect3Direction = vect3NodeCoord1.sub(vect3NodeCoord2)
         let scaleLength = vect3Direction.length()
-        // console.log("DEBUG in initializeBeamMesh: before" + geometryCylinder.scale);
-        // console.log(vect3NodeCoord1.distanceTo(vect3NodeCoord2))
         geometryCylinder.scale(1, scaleLength * scaleDisplay, 1);
-        // console.log("DEBUG in initializeBeamMesh: after" + geometryCylinder.scale);
 
         var materialCylinder = new THREE.MeshBasicMaterial({ 
             color: beamColor,
@@ -255,7 +256,8 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         let quaternionRotation = new THREE.Quaternion();
         quaternionRotation.setFromUnitVectors(
             new THREE.Vector3(0, 1, 0),
-            new THREE.Vector3(...vect3Direction.divideScalar(scaleLength).toArray())
+            new THREE.Vector3(
+                ...vect3Direction.divideScalar(scaleLength).toArray())
         )
         meshCylinder.quaternion.copy(quaternionRotation);
         listMeshBeam.push(meshCylinder)
@@ -263,6 +265,91 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         console.log( new THREE.Vector3(vect3Direction.divideScalar(scaleLength)))
         console.log(quaternionRotation)
         console.log(meshCylinder)
+    }
+}
+
+
+export function initializeShellMesh(dictElementInfo, dictNodeInfo){
+    var listKeys = Object.keys(dictElementInfo);
+    // clear existing mesh 
+    while (listMeshShell.length > 0){
+        scene.remove(listMeshShell.pop());
+    }
+    for (var iShell= 0; iShell < listKeys.length; iShell++) {
+        let key = listKeys[iShell];
+        let node_number_1 = dictElementInfo[key]["listNodeNumber"][0]
+        let node_number_2 = dictElementInfo[key]["listNodeNumber"][1]
+        let node_number_3 = dictElementInfo[key]["listNodeNumber"][2]
+        let node_number_4 = dictElementInfo[key]["listNodeNumber"][3]
+
+        let vect3NodeCoord1 = new THREE.Vector3(
+            dictNodeInfo[node_number_1]["coordinate"][0],
+            dictNodeInfo[node_number_1]["coordinate"][2],
+            dictNodeInfo[node_number_1]["coordinate"][1])
+        let vect3NodeCoord2 = new THREE.Vector3(
+            dictNodeInfo[node_number_2]["coordinate"][0],
+            dictNodeInfo[node_number_2]["coordinate"][2],
+            dictNodeInfo[node_number_2]["coordinate"][1])
+        let vect3NodeCoord3 = new THREE.Vector3(
+            dictNodeInfo[node_number_3]["coordinate"][0],
+            dictNodeInfo[node_number_3]["coordinate"][2],
+            dictNodeInfo[node_number_3]["coordinate"][1])
+        let vect3NodeCoord4 = new THREE.Vector3(
+            dictNodeInfo[node_number_4]["coordinate"][0],
+            dictNodeInfo[node_number_4]["coordinate"][2],
+            dictNodeInfo[node_number_4]["coordinate"][1])
+
+        let vect3NodeCoordMean = new THREE.Vector3(
+            (vect3NodeCoord1.x + vect3NodeCoord2.x + vect3NodeCoord3.x 
+                + vect3NodeCoord4.x)/ 4, 
+            (vect3NodeCoord1.y + vect3NodeCoord2.y + vect3NodeCoord3.y 
+                + vect3NodeCoord4.y)/ 4, 
+            (vect3NodeCoord1.z + vect3NodeCoord2.z + vect3NodeCoord3.z 
+                + vect3NodeCoord4.z)/ 4
+        )
+
+        var geometryShell = new ConvexGeometry(
+            [vect3NodeCoord1, vect3NodeCoord2, 
+                vect3NodeCoord3, vect3NodeCoord4])
+        geometryShell.center();
+
+        geometryShell.scale(scaleDisplay, scaleDisplay, scaleDisplay);
+
+        var materialShell = new THREE.MeshBasicMaterial({ 
+            color: shellColor,
+            transparent: true,
+            opacity: 0.7,});
+
+        var meshShell = new THREE.Mesh(geometryShell, materialShell);
+        meshShell.position.x = vect3NodeCoordMean.x * scaleDisplay;
+        meshShell.position.y = vect3NodeCoordMean.y * scaleDisplay;
+        meshShell.position.z = vect3NodeCoordMean.z * scaleDisplay;
+
+        meshShell.name = "element number: " + formatInt(key)
+            + " Coord: " + formatFloat(vect3NodeCoord1.x) 
+            + ", " + formatFloat(vect3NodeCoord1.y) 
+            + ", " + formatFloat(vect3NodeCoord1.z) 
+            + " Coord: " + formatFloat(vect3NodeCoord2.x) 
+            + ", " + formatFloat(vect3NodeCoord2.y) 
+            + ", " + formatFloat(vect3NodeCoord2.z) 
+            + " Coord: " + formatFloat(vect3NodeCoord3.x) 
+            + ", " + formatFloat(vect3NodeCoord3.y) 
+            + ", " + formatFloat(vect3NodeCoord3.z) 
+            + " Coord: " + formatFloat(vect3NodeCoord4.x) 
+            + ", " + formatFloat(vect3NodeCoord4.y) 
+            + ", " + formatFloat(vect3NodeCoord4.z) 
+
+        meshShell.targetColor = shellColor;
+        meshShell.displayInfo = "element number: " + formatInt(key)
+
+        // let quaternionRotation = new THREE.Quaternion();
+        // quaternionRotation.setFromUnitVectors(
+        //     new THREE.Vector3(0, 1, 0),
+        //     new THREE.Vector3(...vect3Direction.divideScalar(scaleLength).toArray())
+        // )
+        // meshCylinder.quaternion.copy(quaternionRotation);
+        listMeshShell.push(meshShell)
+        scene.add(meshShell);
     }
 }
 
@@ -364,8 +451,11 @@ export function functionSetRandomBeamColor(){
 function render() {
     // Change color of hover object and show its name (sensor index)
     raycaster.setFromCamera(vect2PointerCoord, camera);
-    if (listMeshNode){
-        const intersects = raycaster.intersectObjects(listMeshNode, false);
+    // var intersected1
+    // var intersected2
+    if (listMeshNode || listMeshBeam){
+        const intersects = raycaster.intersectObjects(
+            Array.prototype.concat(listMeshNode, listMeshBeam), false);
         if ( intersects.length > 0 ) {
             if ( INTERSECTED != intersects[ 0 ].object ) {
                 INTERSECTED = intersects[ 0 ].object;
@@ -375,23 +465,24 @@ function render() {
         } else {
             // let valueColor = document.getdomElementById("controlPanel").value;
             functionResetNodeColor(nodeColor);
-            INTERSECTED = null;
-        }
-    }
-    if (listMeshBeam){
-        const intersects = raycaster.intersectObjects(listMeshBeam, false);
-        if ( intersects.length > 0 ) {
-            if ( INTERSECTED != intersects[ 0 ].object ) {
-                INTERSECTED = intersects[ 0 ].object;
-                // intersectedObjectColor = INTERSECTED.material.color.getHex();
-                INTERSECTED.material.color.setHex( 0xffffff );
-            }
-        } else {
-            // let valueColor = document.getdomElementById("controlPanel").value;
             functionResetBeamColor();
             INTERSECTED = null;
         }
     }
+    // if (listMeshBeam){
+    //     const intersects = raycaster.intersectObjects(listMeshBeam, false);
+    //     if ( intersects.length > 0 ) {
+    //         if ( INTERSECTED != intersects[ 0 ].object ) {
+    //             INTERSECTED = intersects[ 0 ].object;
+    //             // intersectedObjectColor = INTERSECTED.material.color.getHex();
+    //             INTERSECTED.material.color.setHex( 0xffffff );
+    //         }
+    //     } else {
+    //         // let valueColor = document.getdomElementById("controlPanel").value;
+    //         intersected1 = null;
+    //     }
+    // }
+
     updateText();
     renderer.render(scene, camera);
 };
