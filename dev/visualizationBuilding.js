@@ -27,6 +27,7 @@ var listMeshBeam = [];
 var beamColor = "#ffffff";
 var listMeshShell= [];
 var shellColor = "#ffffff";
+var boolShellDisplay = true;  
 
 var listMeshArrowHelper = [];
 var arrowHelperLength = 0.1;
@@ -342,12 +343,6 @@ export function initializeShellMesh(dictElementInfo, dictNodeInfo){
         meshShell.targetColor = shellColor;
         meshShell.displayInfo = "element number: " + formatInt(key)
 
-        // let quaternionRotation = new THREE.Quaternion();
-        // quaternionRotation.setFromUnitVectors(
-        //     new THREE.Vector3(0, 1, 0),
-        //     new THREE.Vector3(...vect3Direction.divideScalar(scaleLength).toArray())
-        // )
-        // meshCylinder.quaternion.copy(quaternionRotation);
         listMeshShell.push(meshShell)
         scene.add(meshShell);
     }
@@ -395,6 +390,12 @@ function functionResetNodeColor(valueColor){
 function functionResetBeamColor(){
     listMeshBeam.forEach(function(MeshBeam){
         MeshBeam.material.color.set(MeshBeam.targetColor);
+    })
+}
+
+function functionResetShellColor(){
+    listMeshShell.forEach(function(Mesh){
+        Mesh.material.color.set(Mesh.targetColor);
     })
 }
 
@@ -448,41 +449,60 @@ export function functionSetRandomBeamColor(){
     }
 }
 
+
+export function functionSetShellOpacity(valueOpacity){
+    if (listMeshShell){
+        listMeshShell.forEach(function(Mesh){
+            Mesh.material.opacity = valueOpacity;
+        })
+    }
+}
+
+export function functionSetShellColor(valueColor){
+    listMeshShell.forEach(function(Mesh){
+        Mesh.targetColor = valueColor;
+    })
+}
+
+export function functionSetShellDisplay(boolDisplay){
+    boolShellDisplay = boolDisplay;
+    listMeshShell.forEach(function(Mesh){
+        Mesh.visible = boolDisplay;
+    })
+}
+
+export function functionSetRandomShellColor(){
+    for (let iShell=0; iShell< listMeshShell.length; iShell++){
+        let color = new THREE.Color( 0xffffff );
+        color.setHex( Math.random() * 0xffffff );
+        listMeshShell[iShell].material.color.set(color)
+        listMeshShell[iShell].targetColor = color;
+    }
+}
+
+
+
 function render() {
     // Change color of hover object and show its name (sensor index)
     raycaster.setFromCamera(vect2PointerCoord, camera);
-    // var intersected1
-    // var intersected2
-    if (listMeshNode || listMeshBeam){
+
+    if (listMeshNode || listMeshBeam || listMeshShell){
         const intersects = raycaster.intersectObjects(
-            Array.prototype.concat(listMeshNode, listMeshBeam), false);
+            Array.prototype.concat(listMeshNode, listMeshBeam, listMeshShell), 
+            false);
         if ( intersects.length > 0 ) {
-            if ( INTERSECTED != intersects[ 0 ].object ) {
-                INTERSECTED = intersects[ 0 ].object;
-                // intersectedObjectColor = INTERSECTED.material.color.getHex();
-                INTERSECTED.material.color.setHex( 0xffffff );
+            if ( INTERSECTED != intersects[0].object ) {
+                INTERSECTED = intersects[0].object;
+                INTERSECTED.material.color.setHex(0xffffff);
             }
         } else {
             // let valueColor = document.getdomElementById("controlPanel").value;
             functionResetNodeColor(nodeColor);
             functionResetBeamColor();
+            functionResetShellColor();
             INTERSECTED = null;
         }
     }
-    // if (listMeshBeam){
-    //     const intersects = raycaster.intersectObjects(listMeshBeam, false);
-    //     if ( intersects.length > 0 ) {
-    //         if ( INTERSECTED != intersects[ 0 ].object ) {
-    //             INTERSECTED = intersects[ 0 ].object;
-    //             // intersectedObjectColor = INTERSECTED.material.color.getHex();
-    //             INTERSECTED.material.color.setHex( 0xffffff );
-    //         }
-    //     } else {
-    //         // let valueColor = document.getdomElementById("controlPanel").value;
-    //         intersected1 = null;
-    //     }
-    // }
-
     updateText();
     renderer.render(scene, camera);
 };

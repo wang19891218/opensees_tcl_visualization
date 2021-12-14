@@ -22,9 +22,26 @@ controlPanel.inputBeamOpacity.on("change", (event) => {
 controlPanel.inputBeamColor.on("change", (event) => {
     visualizationBuilding.functionSetBeamColor(event.value);
 });
-controlPanel.inputButtonRandomColor.on("click", () => {
+controlPanel.inputButtonRandomBeamColor.on("click", () => {
     visualizationBuilding.functionSetRandomBeamColor();
 });
+controlPanel.inputShellDisplay.on("change", (event) => {
+    console.log(event.value)
+    visualizationBuilding.functionSetShellDisplay(event.value);
+});
+controlPanel.inputShellOpacity.on("change", (event) => {
+    visualizationBuilding.functionSetShellOpacity(event.value);
+});
+controlPanel.inputShellColor.on("change", (event) => {
+    visualizationBuilding.functionSetShellColor(event.value);
+});
+controlPanel.inputButtonRandomShellColor.on("click", () => {
+    visualizationBuilding.functionSetRandomShellColor();
+});
+
+
+
+
 
 const fileSelector = document.getElementById('file-selector');
 fileSelector.addEventListener('change', (event) => {

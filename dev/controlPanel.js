@@ -15,6 +15,9 @@ const PARAMS = {
     beamScale: 1,
     beamColor: "#ffffff",
     beamOpacity: 0.7,
+    shellDisplay: true,
+    shellColor: "#ffffff",
+    shellOpacity: 0.7,
     rotation_y: 0,
     color: '#0f0',
 };
@@ -43,4 +46,21 @@ export var inputBeamOpacity = controlPane.addInput(PARAMS, 'beamOpacity', {
 });
 export var inputBeamColor = controlPane.addInput(PARAMS, 'beamColor', { });
 
-export var inputButtonRandomColor = controlPane.addButton({title: 'RandomBeamColor'})
+export var inputButtonRandomBeamColor = controlPane.addButton({
+    title: 'RandomBeamColor'})
+
+export var inputShellDisplay = controlPane.addInput(PARAMS, 'shellDisplay', { 
+    title: "DisplayShellElements"
+});
+export var inputShellOpacity = controlPane.addInput(PARAMS, 'shellOpacity', { 
+    min: 0,
+    max: 1,
+});
+
+
+
+export var inputShellColor = controlPane.addInput(PARAMS, 'shellColor', { });
+
+
+
+export var inputButtonRandomShellColor = controlPane.addButton({title: 'RandomShellColor'})
