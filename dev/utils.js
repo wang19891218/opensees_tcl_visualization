@@ -23,7 +23,7 @@ export function formatInt(valueInt, intDigit = 5) {
     return (" ".repeat(intDigit) + valueInt.toString()).slice(-intDigit)
 }
 
-export function formatFloat(valueFloat, intDecimal = 4, intLength = 5) {
+export function formatFloat(valueFloat, intDecimal = 5, intLength = 8) {
     var expandedString = (" ".repeat(intLength) + valueFloat.toFixed(intDecimal))
     return expandedString.slice(-intLength)
 }
