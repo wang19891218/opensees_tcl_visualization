@@ -29,7 +29,7 @@ export function formatFloat(valueFloat, intDecimal = 5, intLength = 8) {
 }
 
 
-function parseTclElementLine(line) {
+function parseTclElementLine(line, dict_variables) {
     let arrayInfo = line.split(/\s+/).slice(1)
 
     var elementType = arrayInfo[0]
@@ -71,9 +71,19 @@ export function parseTcl(list_file_line) {
     var dictBeamElementInfo = {}
     var dictShellElementInfo = {}
 
+    var dict_variables = {}
+            var temp_str = line.match(/-ndm\s\d*.*-/)[0]
+            dict_parameter['int_ndm'] = parseInt(temp_str.slice(4,-1))
+            temp_str = line.match(/-ndf\s\d*/)[0]
+            dict_parameter["int_ndf"] = parseInt(temp_str.slice(4))
+        }
+    }
 
     for (var i_line = 0; i_line < list_file_line.length; i_line ++) {
         let line = list_file_line[i_line]
+        if (line.startsWith('set')){
+            var temp_str = line.match(/-expr\s\d*.*-/)
+        }
         if (line.startsWith('model')){
             var temp_str = line.match(/-ndm\s\d*.*-/)[0]
             dict_parameter['int_ndm'] = parseInt(temp_str.slice(4,-1))
