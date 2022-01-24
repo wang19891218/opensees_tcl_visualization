@@ -5,6 +5,12 @@ Visit the
 to visualize your [OpenSees](https://opensees.berkeley.edu/) tcl code.
 
 
+
+## Notes
+
+**Currently not working with vairables and expressions, will be added later**
+
+
 ## TODO
 
 * Add support for variables and expressions 
