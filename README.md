@@ -4,7 +4,7 @@ Visit the
 [github page](https://wang19891218.github.io/opensees_tcl_visualization/) 
 to visualize your [OpenSees](https://opensees.berkeley.edu/) tcl code.
 
-
+Create issues for any questions or comments. Thanks.
 
 ## Notes
 
