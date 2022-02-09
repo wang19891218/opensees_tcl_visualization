@@ -20,14 +20,34 @@ export function getABS(listInput, valueTarget){
 }
 
 export function formatInt(valueInt, intDigit = 5) {
+    /** 
+     * Convert int to formatted string
+     */
     return (" ".repeat(intDigit) + valueInt.toString()).slice(-intDigit)
 }
 
+
 export function formatFloat(valueFloat, intDecimal = 5, intLength = 8) {
+    /** 
+     * Convert float to formatted string
+     */
     var expandedString = (" ".repeat(intLength) + valueFloat.toFixed(intDecimal))
     return expandedString.slice(-intLength)
 }
 
+
+function updateVariable(line, dict_variables) {
+
+}
+
+
+function convertTclVariable(line, dict_variables) {
+    /**
+     * Convert tcl variable to values 
+     */
+
+    return line
+} 
 
 function parseTclElementLine(line, dict_variables) {
     let arrayInfo = line.split(/\s+/).slice(1)
