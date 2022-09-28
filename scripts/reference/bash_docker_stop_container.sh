@@ -1,0 +1,2 @@
+docker stop project_warehouse_pressure_conditional_neural_network
+docker rm project_warehouse_pressure_conditional_neural_network
