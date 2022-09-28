@@ -6,7 +6,7 @@ echo "Project path $RootPath"
 cd $RootPath
 
 read -p "commit message:" commit_message 
-echo windtunneldatavisualization.app.hfwang.dev > dist/CNAME
+echo https://openseestclvisualization.app.hfwang.dev > dist/CNAME
 git add . 
 git commit -m "$commit_message"
 echo push to main 
