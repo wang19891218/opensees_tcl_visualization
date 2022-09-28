@@ -41,11 +41,31 @@ function updateVariable(line, dict_variables) {
 }
 
 
-function convertTclVariable(line, dict_variables) {
+function convertLineExprVariable(line, dictVariables) {
     /**
-     * Convert tcl variable to values 
+     * Convert tcl expression and variable to values 
      */
-
+    // tempMatch = line.match(/\$.*[\s|)|;]?/g)[0].slice(1,-1)
+    // tempMatch = line.match(/\$\w*[\s|\)|\;]?/g)
+    // var line = "abcdef $ghi $jkl $mno"
+    // var dictVariable={"ghi":1, "jkl":2,"mno":3}
+    tempMatch = line.match(/\$\w+/g)
+    if (tempMatch) {
+        for (var i = 0; i < tempMatch.length; i++) {
+            var variable = tempMatch[i].slice(1)
+            line = line.replace(tempMatch[i], dictVariables[variable])
+            // console.log(variable, tempMatch[i], line)
+        }
+    }
+    
+    // var line = "[expr 3 * 5 ]"
+    tempMatch = line.match(/\[.*\]/)[0].slice(1,-1)
+    if (tempMatch) {
+        for (var i = 0; i < tempMatch.length; i++) {
+            var variable = tempMatch[i].slice(1)
+            line = line.replace(tempMatch[i], dictVariables[variable])
+        }
+    }
     return line
 } 
 
@@ -80,7 +100,6 @@ function parseTclElementLine(line, dict_variables) {
         console.log(line)
     }
 
-
     return dictInfo
 }
 
@@ -91,13 +110,13 @@ export function parseTcl(list_file_line) {
     var dictBeamElementInfo = {}
     var dictShellElementInfo = {}
 
-    var dict_variables = {}
-            var temp_str = line.match(/-ndm\s\d*.*-/)[0]
-            dict_parameter['int_ndm'] = parseInt(temp_str.slice(4,-1))
-            temp_str = line.match(/-ndf\s\d*/)[0]
-            dict_parameter["int_ndf"] = parseInt(temp_str.slice(4))
-        }
-    }
+    // var dict_variables = {}
+    //         var temp_str = line.match(/-ndm\s\d*.*-/)[0]
+    //         dict_parameter['int_ndm'] = parseInt(temp_str.slice(4,-1))
+    //         temp_str = line.match(/-ndf\s\d*/)[0]
+    //         dict_parameter["int_ndf"] = parseInt(temp_str.slice(4))
+    //     }
+    // }
 
     for (var i_line = 0; i_line < list_file_line.length; i_line ++) {
         let line = list_file_line[i_line]

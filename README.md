@@ -17,3 +17,9 @@ Create issues for any questions or comments. Thanks.
 
 * Add support for 2D models 
 * Add support for variables and expressions 
+
+
+
+
+## TCL parsing
+

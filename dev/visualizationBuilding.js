@@ -164,12 +164,12 @@ export function initializeNodeMesh(dictNodeInfo){
 
         var meshSphere = new THREE.Mesh(geometrySphere, materialSphere);
         meshSphere.position.x = listNodeCoord[0] * scaleDisplay;
-        meshSphere.position.y = listNodeCoord[2] * scaleDisplay;
-        meshSphere.position.z = listNodeCoord[1] * scaleDisplay;
+        meshSphere.position.y = listNodeCoord[1] * scaleDisplay;
+        meshSphere.position.z = listNodeCoord[2] * scaleDisplay;
 
         meshSphere.name = "node number: " + formatInt(key)
             + " Coord: " + formatFloat(listNodeCoord[0]) 
-            + ", " + formatFloat(listNodeCoord[1]) 
+            + ", " + formatFloat(listNodeCoord[1])
             + ", " + formatFloat(listNodeCoord[2]);
 
         meshSphere.targetColor = nodeColor;
@@ -214,16 +214,16 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
 
         let vect3NodeCoord1 = new THREE.Vector3(
             dictNodeInfo[node_number_1]["coordinate"][0],
-            dictNodeInfo[node_number_1]["coordinate"][2],
-            dictNodeInfo[node_number_1]["coordinate"][1])
+            dictNodeInfo[node_number_1]["coordinate"][1],
+            dictNodeInfo[node_number_1]["coordinate"][2])
         let vect3NodeCoord2 = new THREE.Vector3(
             dictNodeInfo[node_number_2]["coordinate"][0],
-            dictNodeInfo[node_number_2]["coordinate"][2],
-            dictNodeInfo[node_number_2]["coordinate"][1])
+            dictNodeInfo[node_number_2]["coordinate"][1],
+            dictNodeInfo[node_number_2]["coordinate"][2])
         let vect3NodeCoordMean = new THREE.Vector3(
-            (vect3NodeCoord1.x + vect3NodeCoord2.x)/ 2, 
-            (vect3NodeCoord1.y + vect3NodeCoord2.y)/ 2, 
-            (vect3NodeCoord1.z + vect3NodeCoord2.z)/ 2, 
+            (vect3NodeCoord1.x + vect3NodeCoord2.x)/ 2,
+            (vect3NodeCoord1.y + vect3NodeCoord2.y)/ 2,
+            (vect3NodeCoord1.z + vect3NodeCoord2.z)/ 2,
         )
 
         var geometryCylinder = new THREE.CylinderGeometry(

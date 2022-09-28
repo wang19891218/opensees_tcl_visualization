@@ -1,3 +1,10 @@
+#!/bin/bash
+RootPath=$(git rev-parse --show-toplevel)
+
+echo "Project path $RootPath"
+
+cd $RootPath
+
 read -p "commit message:" commit_message 
 echo windtunneldatavisualization.app.hfwang.dev > dist/CNAME
 git add . 
