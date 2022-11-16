@@ -169,8 +169,8 @@ export function initializeNodeMesh(dictNodeInfo){
 
         meshSphere.name = "node number: " + formatInt(key)
             + " Coord: " + formatFloat(listNodeCoord[0]) 
-            + ", " + formatFloat(listNodeCoord[1])
-            + ", " + formatFloat(listNodeCoord[2]);
+            + ", " + formatFloat(listNodeCoord[2])
+            + ", " + formatFloat(listNodeCoord[1]);
 
         meshSphere.targetColor = nodeColor;
         meshSphere.displayInfo = "node number: " + formatInt(key)
@@ -211,7 +211,7 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         let key = listKeys[iBeam];
         let node_number_1 = dictElementInfo[key]["listNodeNumber"][0]
         let node_number_2 = dictElementInfo[key]["listNodeNumber"][1]
-
+        let strType = dictElementInfo[key]["type"]
         let vect3NodeCoord1 = new THREE.Vector3(
             dictNodeInfo[node_number_1]["coordinate"][0],
             dictNodeInfo[node_number_1]["coordinate"][1],
@@ -242,17 +242,25 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         meshCylinder.position.x = vect3NodeCoordMean.x * scaleDisplay;
         meshCylinder.position.y = vect3NodeCoordMean.y * scaleDisplay;
         meshCylinder.position.z = vect3NodeCoordMean.z * scaleDisplay;
-
-        meshCylinder.name = "node number: " + formatInt(key)
-            + " Coord: " + formatFloat(vect3NodeCoord1.x) 
-            + ", " + formatFloat(vect3NodeCoord1.y) 
-            + ", " + formatFloat(vect3NodeCoord1.z) 
-            + " Coord: " + formatFloat(vect3NodeCoord2.x) 
-            + ", " + formatFloat(vect3NodeCoord2.y) 
-            + ", " + formatFloat(vect3NodeCoord2.z) 
+        if (dictElementInfo["transfTag"] == undefined) {
+        }
+        else {
+            console.log("transfTag", dictElementInfo["transfTag"], )
+        }
+        meshCylinder.name = "element number: " + formatInt(key) + "\tnodes:"
+            + formatInt(node_number_1) + "-" + formatInt(node_number_2)
+            + "\nTransferTag:"
+            + dictElementInfo["transfTag"]
+            + "\nCoord: " + formatFloat(vect3NodeCoord1.x)
+            + ", " + formatFloat(vect3NodeCoord1.y)
+            + ", " + formatFloat(vect3NodeCoord1.z)
+            + " Coord: " + formatFloat(vect3NodeCoord2.x)
+            + ", " + formatFloat(vect3NodeCoord2.y)
+            + ", " + formatFloat(vect3NodeCoord2.z)
 
         meshCylinder.targetColor = beamColor;
-        meshCylinder.displayInfo = "element number: " + formatInt(key)
+        meshCylinder.displayInfo = "element number: "
+            + formatInt(key) + ", type:" + strType;
 
         let quaternionRotation = new THREE.Quaternion();
         quaternionRotation.setFromUnitVectors(
@@ -263,7 +271,7 @@ export function initializeBeamMesh(dictElementInfo, dictNodeInfo){
         meshCylinder.quaternion.copy(quaternionRotation);
         listMeshBeam.push(meshCylinder)
         scene.add(meshCylinder);
-        console.log( new THREE.Vector3(vect3Direction.divideScalar(scaleLength)))
+        console.log(new THREE.Vector3(vect3Direction.divideScalar(scaleLength)))
         console.log(quaternionRotation)
         console.log(meshCylinder)
     }
@@ -285,20 +293,20 @@ export function initializeShellMesh(dictElementInfo, dictNodeInfo){
 
         let vect3NodeCoord1 = new THREE.Vector3(
             dictNodeInfo[node_number_1]["coordinate"][0],
-            dictNodeInfo[node_number_1]["coordinate"][2],
-            dictNodeInfo[node_number_1]["coordinate"][1])
+            dictNodeInfo[node_number_1]["coordinate"][1],
+            dictNodeInfo[node_number_1]["coordinate"][2])
         let vect3NodeCoord2 = new THREE.Vector3(
             dictNodeInfo[node_number_2]["coordinate"][0],
-            dictNodeInfo[node_number_2]["coordinate"][2],
-            dictNodeInfo[node_number_2]["coordinate"][1])
+            dictNodeInfo[node_number_2]["coordinate"][1],
+            dictNodeInfo[node_number_2]["coordinate"][2])
         let vect3NodeCoord3 = new THREE.Vector3(
             dictNodeInfo[node_number_3]["coordinate"][0],
-            dictNodeInfo[node_number_3]["coordinate"][2],
-            dictNodeInfo[node_number_3]["coordinate"][1])
+            dictNodeInfo[node_number_3]["coordinate"][1],
+            dictNodeInfo[node_number_3]["coordinate"][2])
         let vect3NodeCoord4 = new THREE.Vector3(
             dictNodeInfo[node_number_4]["coordinate"][0],
-            dictNodeInfo[node_number_4]["coordinate"][2],
-            dictNodeInfo[node_number_4]["coordinate"][1])
+            dictNodeInfo[node_number_4]["coordinate"][1],
+            dictNodeInfo[node_number_4]["coordinate"][2])
 
         let vect3NodeCoordMean = new THREE.Vector3(
             (vect3NodeCoord1.x + vect3NodeCoord2.x + vect3NodeCoord3.x 
@@ -494,6 +502,7 @@ function render() {
             if ( INTERSECTED != intersects[0].object ) {
                 INTERSECTED = intersects[0].object;
                 INTERSECTED.material.color.setHex(0xffffff);
+                console.log(INTERSECTED.name)
             }
         } else {
             // let valueColor = document.getdomElementById("controlPanel").value;

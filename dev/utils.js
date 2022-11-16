@@ -1,16 +1,14 @@
 const listBeamElementTypes = [
-    "beamWithHinges", 
-    "dispBeamColumn", 
-    "elasticBeamColumn", 
+    "beamWithHinges",
+    "dispBeamColumn",
+    "elasticBeamColumn",
     "nonlinearBeamColumn"]
 
-const listShellElementTypes = [
-    "ShellMITC4",]
+const listShellElementTypes = ["ShellMITC4", ]
 
 export function argMin(array) {
   return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] < r[0] ? a : r))[1];
 }
-
 
 export function getABS(listInput, valueTarget){
     var listAbsDiff = listInput.map(function(x) {
@@ -23,7 +21,12 @@ export function formatInt(valueInt, intDigit = 5) {
     /** 
      * Convert int to formatted string
      */
-    return (" ".repeat(intDigit) + valueInt.toString()).slice(-intDigit)
+    if (valueInt == undefined) {
+        return ""
+    }
+    else {
+        return (" ".repeat(intDigit) + valueInt.toString()).slice(-intDigit)
+    }
 }
 
 
@@ -69,8 +72,10 @@ function convertLineExprVariable(line, dictVariables) {
     return line
 } 
 
-function parseTclElementLine(line, dict_variables) {
+function parseTclElementLine(line, dict_parameter) {
     let arrayInfo = line.split(/\s+/).slice(1)
+
+    let intNDM = dict_parameter["int_ndm"]
 
     var elementType = arrayInfo[0]
     let dictInfo = {}
@@ -81,7 +86,23 @@ function parseTclElementLine(line, dict_variables) {
         
         dictInfo["type"] = elementType
         dictInfo["intElementNumber"] = int_element_number 
-        dictInfo["listNodeNumber"] =  [int_node_number_1, int_node_number_2]
+        dictInfo["listNodeNumber"] = [int_node_number_1, int_node_number_2]
+        if (elementType == "elasticBeamColumn"){
+            if (intNDM == 3) {
+                dictInfo["transfTag"] = parseInt(arrayInfo[10])
+                console.log(dictInfo["transfTag"])
+            }
+            else if (intNDM == 2) {
+                dictInfo["transfTag"] = parseInt(arrayInfo[7])
+            }
+            else {
+                console.log(intNDM)
+                alert("ERROR, elasticBeamColumn line not suppported.")
+                console.log(line)
+            }
+        }
+
+
     } 
     else if (listShellElementTypes.includes(elementType)) {
         var int_element_number = parseInt(arrayInfo[1])
@@ -144,11 +165,11 @@ export function parseTcl(list_file_line) {
                 return parseFloat(x)
             })
             dictNodeInfo[int_node_number]["directional_mass"] = listNodeMass
-            dictNodeInfo[int_node_number]["mass"] 
+            dictNodeInfo[int_node_number]["mass"]
                 = (listNodeMass[0] + listNodeMass[1] + listNodeMass[2]) / 3
         }
         if (line.startsWith('element')) {
-            let dictInfo = parseTclElementLine(line) 
+            let dictInfo = parseTclElementLine(line, dict_parameter)
             let int_element_number = dictInfo["intElementNumber"]
             if (dictInfo["listNodeNumber"].length == 2) {
                 dictBeamElementInfo[int_element_number] = dictInfo
